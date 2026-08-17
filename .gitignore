@@ -1,0 +1,11 @@
+# Real Homebridge runtime data — contains the bridge identity, accessory
+# cache, installed plugins, and (for the Nest plugin) Google auth cookies.
+# None of this belongs in version control.
+config/config.json
+config/persist/
+config/node_modules/
+config/plugins/
+config/accessories/
+config/*.log
+config/.uix-*
+config/.homebridge/

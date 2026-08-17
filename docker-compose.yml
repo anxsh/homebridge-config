@@ -1,0 +1,14 @@
+services:
+  homebridge:
+    image: homebridge/homebridge:latest
+    container_name: homebridge
+    restart: unless-stopped
+    # Host networking is required so mDNS/Bonjour advertisements reach the
+    # LAN and Apple Home can discover the bridge and its accessories.
+    network_mode: host
+    environment:
+      - TZ=America/Los_Angeles
+      - HOMEBRIDGE_CONFIG_UI=1
+      - HOMEBRIDGE_CONFIG_UI_PORT=8581
+    volumes:
+      - ./config:/homebridge

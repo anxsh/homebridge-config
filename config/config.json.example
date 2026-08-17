@@ -1,0 +1,18 @@
+{
+    "bridge": {
+        "name": "Homebridge",
+        "username": "0E:XX:XX:XX:XX:XX",
+        "port": 51826,
+        "pin": "031-45-154"
+    },
+    "platforms": [
+        {
+            "platform": "Nest",
+            "googleAuth": {
+                "issueToken": "PASTE_ISSUE_TOKEN_URL_HERE",
+                "cookies": "PASTE_COOKIES_STRING_HERE"
+            },
+            "options": []
+        }
+    ]
+}
