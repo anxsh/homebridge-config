@@ -128,3 +128,5 @@ router/gateway (on UniFi: **Settings → Advanced → Multicast DNS**, set to
   real `config.json` (bridge identity + SDM OAuth credentials), Config UI
   credentials, plugin installs, accessory cache, and backups all live only
   on `aksa` and are never committed.
+- The populated `config.json` values (SDM OAuth credentials, Config UI
+  login, bridge PIN) are saved in the password manager as a backup.
