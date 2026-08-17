@@ -64,6 +64,27 @@ make restart
 Then in the Home app on iPhone/iPad: **Add Accessory** → **More options** →
 select the Homebridge bridge → enter the PIN from `config/config.json`.
 
+## Troubleshooting
+
+### Homebridge doesn't show up in Apple Home
+
+Bridge discovery relies on mDNS/Bonjour, which is multicast and doesn't
+cross VLANs by default. If the Pi and your phone are on different VLANs
+(e.g. an IoT VLAN vs. your main network), the phone will never see the
+advertisement even though Homebridge is running fine.
+
+You can confirm the bridge really is broadcasting from the Pi's side with:
+
+```
+avahi-browse -a -t
+```
+
+Look for a `_hap._tcp` entry with `sf=1` in its TXT record (unpaired,
+discoverable). If that shows up but the Home app still can't find it, the
+traffic isn't reaching your phone's VLAN — enable mDNS relaying on your
+router/gateway (on UniFi: **Settings → Advanced → Multicast DNS**, set to
+**Auto**) so mDNS traffic is relayed between VLANs.
+
 ## Common tasks
 
 | Command        | Description                                    |
@@ -80,8 +101,8 @@ select the Homebridge bridge → enter the PIN from `config/config.json`.
 
 ## Notes
 
-- `config/config.json` (real bridge identity + Google auth cookies) is
-  gitignored — never commit it. `config/config.json.example` is the tracked
-  template.
-- `config/persist/`, `config/node_modules/`, and other runtime state created
-  by the container are also gitignored.
+- `.gitignore` ignores everything under `config/` except
+  `config/config.json.example`, which is the only tracked file there. The
+  real `config.json` (bridge identity + Google auth cookies), Config UI
+  credentials, plugin installs, accessory cache, and backups all live only
+  on `aksa` and are never committed.
