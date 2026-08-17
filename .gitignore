@@ -15,3 +15,5 @@ config/.npmrc
 config/homebridgeContainer.json
 config/package.json
 config/startup.sh
+config/auth.json
+config/backups/
