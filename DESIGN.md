@@ -31,6 +31,18 @@ door-state changes made outside HomeKit take up to that long to reflect.
 The plugin itself also explicitly disclaims responsibility for flock
 safety — don't rely on HomeKit's reported door state alone.
 
+**Gotcha hit during setup:** the config schema's `deviceId` description
+("optional, will be auto-discovered") is misleading for the bearer-token
+auth path — in `homebridge-omlet@0.9.7`'s `index.js`, the constructor only
+proceeds past its `hasEmailPassword || hasManualToken` gate if
+`bearerToken` AND `deviceId` are both already set; auto-discovery
+(`discoverDevices()`/`GET /api/v1/group`) only ever runs from the
+email/password login flow, never from a bare API key. Worked around it by
+calling `GET https://x107.omlet.co.uk/api/v1/group` with
+`Authorization: Bearer <key>` directly (the same request the plugin's
+discovery code makes) to read `deviceId` out of the response, then setting
+both `bearerToken` and `deviceId` in `config.json` up front.
+
 ### 2026-08-17 — Chose `homebridge-nest` (unofficial API) over the official SDM plugin
 
 **What:** Set up Homebridge to use `homebridge-nest`

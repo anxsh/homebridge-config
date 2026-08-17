@@ -20,7 +20,8 @@
             "name": "Omlet Coop",
             "platform": "OmletCoop",
             "countryCode": "US",
-            "bearerToken": "PASTE_OMLET_API_KEY_HERE"
+            "bearerToken": "PASTE_OMLET_API_KEY_HERE",
+            "deviceId": "PASTE_OMLET_DEVICE_ID_HERE"
         }
     ]
 }

@@ -94,9 +94,15 @@ setup:
 2. Paste it into `config/config.json` as `bearerToken` under the
    `OmletCoop` platform (or via Config UI's plugin settings form, which
    writes to the same file).
-3. If you have more than one Omlet coop door on the account, also set
-   `deviceId` (Advanced Settings in Config UI) — otherwise the plugin
-   auto-discovers the first one.
+3. **`deviceId` is required alongside `bearerToken`** — the plugin's
+   auto-discovery only runs on the email/password login path, not the API
+   key path (see `DESIGN.md`'s 2026-08-17 entry). Get it by calling the
+   same endpoint the plugin uses:
+   ```
+   curl -H "Authorization: Bearer <your API key>" \
+     https://x107.omlet.co.uk/api/v1/group
+   ```
+   and pull `deviceId` out of the `devices` array in the response.
 
 ### 5. Restart and pair with Apple Home
 
