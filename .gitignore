@@ -1,19 +1,6 @@
-# Real Homebridge runtime data — contains the bridge identity, accessory
-# cache, installed plugins, and (for the Nest plugin) Google auth cookies.
-# None of this belongs in version control.
-config/config.json
-config/persist/
-config/node_modules/
-config/plugins/
-config/accessories/
-config/*.log
-config/.uix-*
-config/.homebridge/
-
-# Runtime scaffolding written by the homebridge/homebridge image on startup
-config/.npmrc
-config/homebridgeContainer.json
-config/package.json
-config/startup.sh
-config/auth.json
-config/backups/
+# Homebridge runtime state (bridge identity, accessory cache, installed
+# plugins, Google auth cookies, Config UI credentials/backups, and anything
+# else the container writes into this directory) never belongs in version
+# control. Ignore everything under config/ except the tracked template.
+config/*
+!config/config.json.example
