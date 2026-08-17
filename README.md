@@ -1,17 +1,19 @@
 # homebridge-config
 
 Homebridge, running in Docker on `aksa` (Raspberry Pi 4), to bridge Nest
-thermostats and Nest Protects into Apple Home.
+thermostats into Apple Home. Nest Protects are not bridged — see
+`DESIGN.md` for why.
 
 ## Why this plugin
 
-Google's official Nest integration (the Smart Device Management / SDM API)
-does not expose Nest Protect at all — only thermostats, cameras, doorbells,
-and displays. The only Homebridge plugin that supports Protect is
-[`homebridge-nest`](https://github.com/chrisjshull/homebridge-nest), which
-talks to Nest's unofficial API using a Google account cookie instead of
-OAuth. It covers both thermostats and Protects in one plugin, so that's what
-this repo is set up for. See `DESIGN.md` for details and the tradeoffs.
+This repo uses
+[`homebridge-google-nest-sdm`](https://github.com/potmat/homebridge-google-nest-sdm),
+which talks to Google's official Smart Device Management (SDM) API via
+OAuth — no scraped browser cookies. The tradeoff is that SDM doesn't expose
+Nest Protect at all (only thermostats, cameras, doorbells, and displays);
+the only plugin that supports Protect (`homebridge-nest`) requires
+reverse-engineered cookie auth that broke within a day in practice. See
+`DESIGN.md` for the full history and tradeoffs.
 
 ## Setup
 
@@ -34,26 +36,46 @@ make ui
 ```
 
 Log in (default credentials: `admin` / `admin` — change these immediately
-under Config UI's user settings) and install the **Nest** plugin
-(`homebridge-nest`) from the Plugins tab.
+under Config UI's user settings) and install the **GoogleNestSDM** plugin
+(`homebridge-google-nest-sdm`) from the Plugins tab.
 
-### 3. Get Google auth credentials for the Nest plugin
+### 3. Get SDM OAuth credentials for the plugin
 
-Follow the `homebridge-nest`
-[Google account cookie auth steps](https://github.com/chrisjshull/homebridge-nest#configuration):
+Follow the `homebridge-google-nest-sdm`
+[setup instructions](https://github.com/potmat/homebridge-google-nest-sdm#where-do-the-config-values-come-from).
+At a high level:
 
-1. Open an incognito browser window with DevTools open on the Network tab.
-2. Log in at `home.nest.com` with your Google account.
-3. Find the `issueToken` request — copy its full request URL.
-4. Find the `iframe` request for `oauth2/iframe` — copy its full `cookie`
-   request header.
-5. Paste these into `config/config.json` under `platforms[0].googleAuth` as
-   `issueToken` and `cookies` (or paste them into the plugin's settings form
-   in the Config UI, which writes to the same file).
+1. Create a Google Cloud project, enable the Smart Device Management API,
+   and create a **Web application**-type OAuth 2.0 Client ID
+   (`clientId`/`clientSecret`).
+2. Register a project in the
+   [Device Access Console](https://console.nest.google.com/device-access)
+   ($5 one-time fee) linked to that OAuth client — gives you `projectId`.
+3. Create a Pub/Sub topic in the same GCP project, grant the Google group
+   `sdm-publisher@googlegroups.com` the **Pub/Sub Publisher** role on it
+   (via `gcloud pubsub topics add-iam-policy-binding` if the Cloud Console
+   UI rejects the principal), and register the topic in the Device Access
+   Console under "Enable Pub/Sub topic for Events".
+4. Create a **Pull** subscription on that topic in Cloud Console → Pub/Sub
+   → Subscriptions — gives you `subscriptionId`
+   (`projects/<gcp-project-id>/subscriptions/<name>`).
+5. In Cloud Console → OAuth consent screen, click **Publish App** (skip
+   Google's verification review — not required for personal use). This
+   matters: while the consent screen is still in "Testing" status, refresh
+   tokens expire after 7 days.
+6. Authorize your Nest account using the partner-connections URL (built
+   from `client_id` + `projectId`, scopes `sdm.service` +
+   `pubsub`, `redirect_uri=http://localhost` — Google blocklists
+   `https://www.google.com` as a redirect target despite Google's own docs
+   suggesting it) and exchange the resulting `code` for a `refreshToken`
+   via the OAuth token endpoint.
+7. Paste `clientId`, `clientSecret`, `projectId`, `refreshToken`,
+   `subscriptionId`, and `gcpProjectId` into `config/config.json` under the
+   `homebridge-google-nest-sdm` platform (or the plugin's settings form in
+   Config UI, which writes to the same file).
 
-These cookies can expire (Google may invalidate them on password change,
-security events, etc.) — if the plugin stops authenticating, redo this
-step.
+See `DESIGN.md`'s 2026-08-17 changelog entry for gotchas hit doing this the
+first time.
 
 ### 4. Restart and pair with Apple Home
 
@@ -103,6 +125,6 @@ router/gateway (on UniFi: **Settings → Advanced → Multicast DNS**, set to
 
 - `.gitignore` ignores everything under `config/` except
   `config/config.json.example`, which is the only tracked file there. The
-  real `config.json` (bridge identity + Google auth cookies), Config UI
+  real `config.json` (bridge identity + SDM OAuth credentials), Config UI
   credentials, plugin installs, accessory cache, and backups all live only
   on `aksa` and are never committed.

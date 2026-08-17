@@ -35,3 +35,46 @@ all — there's no way to get Protects into Homebridge through it. If Protect
 support in Apple Home turns out not to matter in practice, revisit and
 switch to `homebridge-google-nest-sdm` for a more durable thermostat-only
 integration.
+
+### 2026-08-17 — Switched to `homebridge-google-nest-sdm`, dropping Protects
+
+**What:** Replaced `homebridge-nest` with `homebridge-google-nest-sdm`
+(potmat/homebridge-google-nest-sdm), authenticating via Google's official
+Smart Device Management (SDM) OAuth flow — `clientId`/`clientSecret` from a
+Cloud Console OAuth client, a Device Access Console project (`projectId`,
+one-time $5 registration), a `refreshToken` obtained via the OAuth
+authorization-code flow, and a Pub/Sub pull `subscriptionId` for device
+events. Nest Protects are no longer bridged into Apple Home.
+
+**Why:** `homebridge-nest`'s cookie auth broke (`USER_LOGGED_OUT`) after
+running for less than a day, confirming the brittleness flagged in the
+2026-08-17 entry above. The user decided Protect support in Apple Home
+wasn't worth the recurring manual cookie-recapture — see the tradeoff noted
+in that entry.
+
+**Gotchas hit during setup (for next time this needs to be redone):**
+- The SDM API's official `redirect_uri=https://www.google.com` from Google's
+  own docs now fails with `redirect_uri_mismatch` — Google blocklists
+  `google.com` domains as custom OAuth redirect targets. Use
+  `http://localhost` instead (works on Web-application-type OAuth clients
+  without needing to own/verify a domain); the browser will fail to connect
+  after consent, but the `code=` param is still in the address bar.
+- The Pub/Sub topic must be created manually in the same GCP project as the
+  OAuth client, then registered in the Device Access Console (it does not
+  auto-create one). The publisher principal to grant on the topic is the
+  Google group `sdm-publisher@googlegroups.com` (not a service account —
+  `smart-device-management-issue@system.gserviceaccount.com`, mentioned in
+  some older guides, does not exist). Granting it via the Cloud Console
+  "Add Principal" UI can reject valid Google-managed principals with an
+  "must be associated with an active account" error; `gcloud pubsub topics
+  add-iam-policy-binding` works around it.
+- With the OAuth consent screen in "Testing" status, refresh tokens expire
+  after 7 days (`refresh_token_expires_in` in the token response) — worse
+  than the cookie method we were trying to escape. Fix: Cloud Console →
+  OAuth consent screen → **Publish App**. For a personal/single-user SDM
+  app this does not require completing Google's verification review (no
+  privacy policy, demo video, etc.) — publishing alone drops the 7-day cap
+  and the resulting refresh token has no expiry field. Re-run the
+  authorization flow once more after publishing to get a token issued
+  under the new status; tokens issued while still in Testing keep their
+  original 7-day expiry even after the app is published.

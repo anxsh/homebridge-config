@@ -7,12 +7,14 @@
     },
     "platforms": [
         {
-            "platform": "Nest",
-            "googleAuth": {
-                "issueToken": "PASTE_ISSUE_TOKEN_URL_HERE",
-                "cookies": "PASTE_COOKIES_STRING_HERE"
-            },
-            "options": []
+            "name": "GoogleNestSDM",
+            "platform": "homebridge-google-nest-sdm",
+            "clientId": "PASTE_OAUTH_CLIENT_ID_HERE",
+            "clientSecret": "PASTE_OAUTH_CLIENT_SECRET_HERE",
+            "projectId": "PASTE_DEVICE_ACCESS_PROJECT_ID_HERE",
+            "refreshToken": "PASTE_REFRESH_TOKEN_HERE",
+            "subscriptionId": "projects/PASTE_GCP_PROJECT_ID/subscriptions/PASTE_SUBSCRIPTION_NAME",
+            "gcpProjectId": "PASTE_GCP_PROJECT_ID_HERE"
         }
     ]
 }
