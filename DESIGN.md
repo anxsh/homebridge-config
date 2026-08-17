@@ -10,6 +10,27 @@ stack.
 
 ## Changelog
 
+### 2026-08-17 — Added `homebridge-omlet` for the coop Autodoor
+
+**What:** Installed `homebridge-omlet` (npm) into the Homebridge container
+and added an `OmletCoop` platform block to `config/config.json`,
+authenticating via a bearer API key generated at
+smart.omlet.com/developers rather than the plugin's email/password login
+option. Exposes the coop door as a HomeKit garage-door accessory.
+
+**Why:** User wants the Omlet Autodoor controllable/automatable from Apple
+Home alongside the Nest thermostats already bridged here, instead of a
+separate Omlet app. The bearer-token auth path was chosen over
+email/password because it's the same "official API, not stored account
+credentials" pattern already used for `homebridge-google-nest-sdm` —
+avoids putting the Omlet account password in `config.json`.
+
+**Tradeoff:** Unlike the SDM plugin's OAuth, `homebridge-omlet` still
+polls Omlet's cloud (default every 30s) rather than using event push, so
+door-state changes made outside HomeKit take up to that long to reflect.
+The plugin itself also explicitly disclaims responsibility for flock
+safety — don't rely on HomeKit's reported door state alone.
+
 ### 2026-08-17 — Chose `homebridge-nest` (unofficial API) over the official SDM plugin
 
 **What:** Set up Homebridge to use `homebridge-nest`

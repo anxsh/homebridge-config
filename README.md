@@ -1,10 +1,10 @@
 # homebridge-config
 
 Homebridge, running in Docker on `aksa` (Raspberry Pi 4), to bridge Nest
-thermostats into Apple Home. Nest Protects are not bridged — see
-`DESIGN.md` for why.
+thermostats and an Omlet Autodoor chicken coop door into Apple Home. Nest
+Protects are not bridged — see `DESIGN.md` for why.
 
-## Why this plugin
+## Why these plugins
 
 This repo uses
 [`homebridge-google-nest-sdm`](https://github.com/potmat/homebridge-google-nest-sdm),
@@ -14,6 +14,12 @@ Nest Protect at all (only thermostats, cameras, doorbells, and displays);
 the only plugin that supports Protect (`homebridge-nest`) requires
 reverse-engineered cookie auth that broke within a day in practice. See
 `DESIGN.md` for the full history and tradeoffs.
+
+For the coop door it uses
+[`homebridge-omlet`](https://www.npmjs.com/package/homebridge-omlet), which
+talks to Omlet's official, documented developer API via a generated API key
+— the same "official API, not scraped credentials" pattern as the SDM
+plugin above.
 
 ## Setup
 
@@ -77,7 +83,22 @@ At a high level:
 See `DESIGN.md`'s 2026-08-17 changelog entry for gotchas hit doing this the
 first time.
 
-### 4. Restart and pair with Apple Home
+### 4. Get an Omlet API key for the coop door plugin
+
+The **OmletCoop** platform (`homebridge-omlet`) is already installed and
+present in `config/config.json` with a placeholder `bearerToken`. To finish
+setup:
+
+1. Log in at <https://smart.omlet.com/developers/login> with your Omlet
+   account and generate an API key under **API Keys** (free, no limit).
+2. Paste it into `config/config.json` as `bearerToken` under the
+   `OmletCoop` platform (or via Config UI's plugin settings form, which
+   writes to the same file).
+3. If you have more than one Omlet coop door on the account, also set
+   `deviceId` (Advanced Settings in Config UI) — otherwise the plugin
+   auto-discovers the first one.
+
+### 5. Restart and pair with Apple Home
 
 ```
 make restart
@@ -128,5 +149,6 @@ router/gateway (on UniFi: **Settings → Advanced → Multicast DNS**, set to
   real `config.json` (bridge identity + SDM OAuth credentials), Config UI
   credentials, plugin installs, accessory cache, and backups all live only
   on `aksa` and are never committed.
-- The populated `config.json` values (SDM OAuth credentials, Config UI
-  login, bridge PIN) are saved in the password manager as a backup.
+- The populated `config.json` values (SDM OAuth credentials, Omlet API key,
+  Config UI login, bridge PIN) are saved in the password manager as a
+  backup.

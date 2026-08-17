@@ -15,6 +15,12 @@
             "refreshToken": "PASTE_REFRESH_TOKEN_HERE",
             "subscriptionId": "projects/PASTE_GCP_PROJECT_ID/subscriptions/PASTE_SUBSCRIPTION_NAME",
             "gcpProjectId": "PASTE_GCP_PROJECT_ID_HERE"
+        },
+        {
+            "name": "Omlet Coop",
+            "platform": "OmletCoop",
+            "countryCode": "US",
+            "bearerToken": "PASTE_OMLET_API_KEY_HERE"
         }
     ]
 }
