@@ -113,6 +113,29 @@ make restart
 Then in the Home app on iPhone/iPad: **Add Accessory** → **More options** →
 select the Homebridge bridge → enter the PIN from `config/config.json`.
 
+## Migrating to a new machine
+
+Nothing about the Nest setup above is tied to `aksa` specifically — the
+GCP project, OAuth client, Device Access Console registration, and Pub/Sub
+topic/subscription all live in Google's cloud under your account, not on
+the Pi. The only thing that's actually local is `config/config.json`. To
+move Homebridge to a different machine:
+
+1. Restore `config/config.json` from the password manager backup (see
+   Notes below) onto the new machine, in place of the freshly-generated
+   one `make up` would otherwise create.
+2. Run `make up` there.
+
+That's it — no need to redo the OAuth client, Device Access Console
+registration, Pub/Sub topic, or the consent screen "Publish App" step;
+those are one-time, per-Google-account setup, not per-machine.
+
+Keep the *same* `bridge.username`/`pin` values (i.e. restore the real
+`config.json` rather than starting from a fresh one) so HomeKit pairing
+carries over and you don't have to re-add every accessory in the Home app.
+If the new machine is on a different VLAN/network than before, see
+Troubleshooting below for mDNS considerations.
+
 ## Troubleshooting
 
 ### Homebridge doesn't show up in Apple Home
