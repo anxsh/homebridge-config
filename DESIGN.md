@@ -10,6 +10,12 @@ stack.
 
 ## Changelog
 
+### 2026-10-29 — Enabled `showFan` for Nest thermostats
+
+**What:** Added `"showFan": true` to the `GoogleNestSDM` platform configuration in `config/config.json` and updated `config.json.example`.
+
+**Why:** The Google SDM API trait `sdm.devices.traits.Fan` is reported by both Nest thermostats ("Hallway Thermostat" and "Family Room Thermostat"). Enabling `showFan: true` directs `homebridge-google-nest-sdm` to register separate Fan accessories (`<Thermostat Name> Fan`) with HomeKit `On` characteristics, exposing fan run status and control for monitoring in Grafana.
+
 ### 2026-08-17 — Added `homebridge-omlet` for the coop Autodoor
 
 **What:** Installed `homebridge-omlet` (npm) into the Homebridge container
