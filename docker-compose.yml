@@ -10,5 +10,6 @@ services:
       - TZ=America/Los_Angeles
       - HOMEBRIDGE_CONFIG_UI=1
       - HOMEBRIDGE_CONFIG_UI_PORT=8581
+      - ENABLE_AVAHI=0
     volumes:
       - ./config:/homebridge

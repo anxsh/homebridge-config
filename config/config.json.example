@@ -3,7 +3,10 @@
         "name": "Homebridge",
         "username": "0E:XX:XX:XX:XX:XX",
         "port": 51826,
-        "pin": "031-45-154"
+        "pin": "031-45-154",
+        "bind": [
+            "eth0"
+        ]
     },
     "platforms": [
         {

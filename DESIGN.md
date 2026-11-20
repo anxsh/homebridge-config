@@ -10,6 +10,16 @@ stack.
 
 ## Changelog
 
+### 2026-11-20 — Bound Homebridge mDNS to `eth0` and disabled container Avahi
+
+**What:** Added `"bind": ["eth0"]` to `bridge` in `config/config.json` (and `config/config.json.example`) and set `ENABLE_AVAHI=0` in `docker-compose.yml`.
+
+**Why:** Without `bridge.bind`, Homebridge's `ciao` mDNS advertiser bound to every host interface (`eth0`, `lo`, Docker `br-*` bridges, `tailscale0`, etc.). This caused two problems:
+1. Continuous `Encountered MDNS socket error on socket 'tailscale0' : Error: send ENODEV 224.0.0.251:5353` log spam (~550 errors per 90 minutes) that filled and truncated `homebridge.log` every 6 hours.
+2. `ciao` dropped its `eth0` mDNS socket while continuing to advertise on Docker bridge interfaces and `lo`, leaving `NorrisHomeBridge` invisible on the LAN (`eth0`) so Apple Home Hubs disconnected and morning automations (Omlet coop door) failed to fire.
+
+Disabling the container's bundled `avahi-daemon` (`ENABLE_AVAHI=0`) also stops it from conflicting with the host's `avahi-daemon` over `aksa.local` under `network_mode: host` (Homebridge uses `ciao`, not Avahi, for HAP mDNS).
+
 ### 2026-10-29 — Enabled `showFan` for Nest thermostats
 
 **What:** Added `"showFan": true` to the `GoogleNestSDM` platform configuration in `config/config.json` and updated `config.json.example`.

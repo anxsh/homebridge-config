@@ -151,11 +151,16 @@ You can confirm the bridge really is broadcasting from the Pi's side with:
 avahi-browse -a -t
 ```
 
-Look for a `_hap._tcp` entry with `sf=1` in its TXT record (unpaired,
-discoverable). If that shows up but the Home app still can't find it, the
-traffic isn't reaching your phone's VLAN — enable mDNS relaying on your
-router/gateway (on UniFi: **Settings → Advanced → Multicast DNS**, set to
-**Auto**) so mDNS traffic is relayed between VLANs.
+Look for a `_hap._tcp` entry on `eth0` (not just `br-*` or `lo`) with `sf=1` in
+its TXT record (unpaired, discoverable; `sf=0` once paired). `bridge.bind` is
+set to `["eth0"]` in `config/config.json` so Homebridge's `ciao` mDNS advertiser
+only binds to the LAN interface and avoids `tailscale0` / Docker bridge
+interfaces, and `ENABLE_AVAHI=0` in `docker-compose.yml` avoids running a
+duplicate `avahi-daemon` alongside the host's. If the bridge shows up on `eth0`
+but the Home app still can't find it, the traffic isn't reaching your phone's
+VLAN — enable mDNS relaying on your router/gateway (on UniFi: **Settings →
+Advanced → Multicast DNS**, set to **Auto**) so mDNS traffic is relayed between
+VLANs.
 
 ## Common tasks
 
